@@ -103,13 +103,11 @@ module "jenkins-gke" {
   IAM Bindings GKE SVC
  *****************************************/
 # allow GKE to pull images from GCR
-resource "google_project_iam_binding" "gke" {
+resource "google_project_iam_member" "gke" {
   project = module.enables-google-apis.project_id
   role    = "roles/storage.objectViewer"
 
-  members = [
-    "serviceAccount:${module.jenkins-gke.service_account}",
-  ]
+  member = "serviceAccount:${module.jenkins-gke.service_account}"
 }
 
 /*****************************************
@@ -125,10 +123,10 @@ module "workload_identity" {
 }
 
 # enable GSA to add and delete pods for jenkins builders
-resource "google_project_iam_binding" "cluster-dev" {
+resource "google_project_iam_member" "cluster-dev" {
   project = module.enables-google-apis.project_id
   role    = "roles/container.developer"
-  members = [module.workload_identity.gcp_service_account_fqn]
+  member  = module.workload_identity.gcp_service_account_fqn
 }
 
 data "google_client_config" "default" {
@@ -178,13 +176,12 @@ resource "kubernetes_secret" "gh-secrets" {
 /*****************************************
   Grant Jenkins SA Permissions project editor
  *****************************************/
-resource "google_project_iam_binding" "jenkins-project" {
+resource "google_project_iam_member" "jenkins-project" {
   project = module.enables-google-apis.project_id
   role    = "roles/editor"
 
-  members = [
-    module.workload_identity.gcp_service_account_fqn
-  ]
+  member = module.workload_identity.gcp_service_account_fqn
+
 }
 
 data "local_file" "helm_chart_values" {
