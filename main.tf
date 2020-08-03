@@ -157,9 +157,9 @@ resource "kubernetes_secret" "gh-secrets" {
     name = "github-secrets"
   }
   data = {
-    github_username          = var.github_username
-    github_repo      = module.workload_identity.k8s_service_account_name
-    github_token = var.github_token
+    github_username = var.github_username
+    github_repo     = var.github_repo
+    github_token    = var.github_token
   }
 }
 
@@ -188,7 +188,7 @@ resource "google_project_iam_binding" "jenkins-project" {
 }
 
 data "local_file" "helm_chart_values" {
-    filename = "${path.module}/values.yaml"
+  filename = "${path.module}/values.yaml"
 }
 
 resource "helm_release" "jenkins" {
